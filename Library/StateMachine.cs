@@ -94,7 +94,7 @@ namespace Library
             targetState.AddStateCallback(method, false);
         }
 
-        public void AddTransitArcCallback(string source, string target, ArcCallback method)
+        public void AddTransitionCallback(string source, string target, ArcCallback method)
         {
             State s = this[source];
 
