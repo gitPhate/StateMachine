@@ -14,9 +14,9 @@ namespace Library.Callbacks
             Callback = callback;
         }
 
-        public void Invoke(string state, bool enter)
+        public void Invoke(string state)
         {
-            Callback(state, enter);
+            Callback(state);
         }
     }
 }

@@ -34,13 +34,13 @@ namespace Library
             }
         }
 
-        public void AddTransitArcCallback(ArcCallback method)
+        public void AddTransitionCallback(ArcCallback method)
         {
             ArcCallbackInvoker aci = new ArcCallbackInvoker(method);
             _transitCallbacks.Add(aci);
         }
 
-        public void CallTransitCallbacks()
+        public void CallTransitionCallbacks()
         {
             foreach (ArcCallbackInvoker aci in _transitCallbacks)
             {

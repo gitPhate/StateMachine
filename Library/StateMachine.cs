@@ -7,35 +7,36 @@ using Library.Callbacks;
 
 namespace Library
 {
-    public delegate void StateCallback(string currentState, bool isEnterCallback);
+    public delegate void StateCallback(string currentState);
     public delegate void ArcCallback(string sourceState, string targetState);
 
     public class StateMachine
     {
-        private Dictionary<string, State> _mapStates;
+        private Dictionary<string, State> _statesMap;
         private string _postedState;
-        private bool _transiting;
 
+        public bool Transiting;
         public State CurrentState { get; private set; }
-        public State this[string stateName]
+        private State this[string stateName]
         {
             get
             {
-                if (!_mapStates.ContainsKey(stateName))
+                if (!_statesMap.ContainsKey(stateName))
                 {
                     return null;
                 }
 
-                return _mapStates[stateName];
+                return _statesMap[stateName];
             }
         }
 
+
         public StateMachine()
         {
-            _mapStates = new Dictionary<string, State>();
+            _statesMap = new Dictionary<string, State>();
             _postedState = string.Empty;
+            Transiting = false;
 
-            _transiting = false;
             CurrentState = null;
         }
 
@@ -47,51 +48,56 @@ namespace Library
             }
 
             State s = new State(stateName);
-            _mapStates[stateName] = s;
+            _statesMap[stateName] = s;
         }
 
         public void AddArc(string source, string target)
         {
-            State sSource = this[source];
-            if (sSource == null)
+            State sourceState = this[source];
+
+            if (sourceState == null)
             {
                 throw new StateMachineException(ErrorCodes.UnknownState, source);
             }
 
-            State sTarget = this[target];
-            if (sTarget == null)
+            State targetState = this[target];
+
+            if (targetState == null)
             {
                 throw new StateMachineException(ErrorCodes.UnknownState, target);
             }
 
-            sSource.AddArc(sTarget);
+            sourceState.AddArc(targetState);
         }
 
-        public void AddEnterStateCallback(string stateName, StateCallback method)
+        public void AddEnterStateCallback(string targetStateName, StateCallback method)
         {
-            State s = this[stateName];
-            if (s == null)
+            State targetState = this[targetStateName];
+
+            if (targetState == null)
             {
-                throw new StateMachineException(ErrorCodes.UnknownState, stateName);
+                throw new StateMachineException(ErrorCodes.UnknownState, targetStateName);
             }
 
-            s.AddStateCallback(method, true);
+            targetState.AddStateCallback(method, true);
         }
 
-        public void AddExitStateCallback(string stateName, StateCallback method)
+        public void AddExitStateCallback(string targetStateName, StateCallback method)
         {
-            State s = this[stateName];
-            if (s == null)
+            State targetState = this[targetStateName];
+
+            if (targetState == null)
             {
-                throw new StateMachineException(ErrorCodes.UnknownState, stateName);
+                throw new StateMachineException(ErrorCodes.UnknownState, targetStateName);
             }
 
-            s.AddStateCallback(method, false);
+            targetState.AddStateCallback(method, false);
         }
 
         public void AddTransitArcCallback(string source, string target, ArcCallback method)
         {
             State s = this[source];
+
             if (s == null)
             {
                 throw new StateMachineException(ErrorCodes.UnknownState, source);
@@ -102,7 +108,7 @@ namespace Library
 
         public void GoToState(string stateName)
         {
-            if (_transiting)
+            if (Transiting)
             {
                 if (_postedState.Length != 0)
                 {
@@ -116,9 +122,10 @@ namespace Library
             try
             {
             PostedStateRestart:
-                _transiting = true;
+                Transiting = true;
 
                 State target = this[stateName];
+
                 if (target == null)
                 {
                     throw new StateMachineException(ErrorCodes.UnknownState, stateName);
@@ -127,18 +134,19 @@ namespace Library
                 if (CurrentState != null)
                 {
                     Arc arc = CurrentState[target];
+
                     if (arc == null)
                     {
                         throw new StateMachineException(ErrorCodes.InvalidTransition, StateMachineException.MakeArcName(CurrentState.Name, target.Name));
                     }
 
                     CurrentState.CallExitCallbacks();
-                    arc.CallTransitCallbacks();
+                    arc.CallTransitionCallbacks();
                 }
 
                 CurrentState = target;
                 target.CallEnterCallbacks();
-                _transiting = false;
+                Transiting = false;
 
                 if (_postedState.Length != 0)
                 {
@@ -149,7 +157,7 @@ namespace Library
             }
             catch
             {
-                _transiting = false;
+                Transiting = false;
                 throw;
             }
         }

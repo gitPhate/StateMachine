@@ -9,7 +9,7 @@ namespace Library
 {
     public class State
     {
-        private Dictionary<string, Arc> _mapArcs;
+        private Dictionary<string, Arc> _arcsMap;
         private List<StateCallbackInvoker> _enterCallbacks;
         private List<StateCallbackInvoker> _exitCallbacks;
 
@@ -19,33 +19,33 @@ namespace Library
         {
             get
             {
-                if (!_mapArcs.ContainsKey(s.Name))
+                if (!_arcsMap.ContainsKey(s.Name))
                 {
                     return null;
                 }
 
-                return _mapArcs[s.Name];
+                return _arcsMap[s.Name];
             }
         }
 
-        public State(string sName)
+        public State(string stateName)
         {
-            Name = sName;
+            Name = stateName;
 
-            _mapArcs = new Dictionary<string, Arc>();
+            _arcsMap = new Dictionary<string, Arc>();
             _enterCallbacks = new List<StateCallbackInvoker>();
             _exitCallbacks = new List<StateCallbackInvoker>();
         }
 
         public void AddArc(State s)
         {
-            if (_mapArcs.ContainsKey(s.Name))
+            if (_arcsMap.ContainsKey(s.Name))
             {
                 throw new StateMachineException(ErrorCodes.AlreadyPresentArc, StateMachineException.MakeArcName(Name, s.Name));
             }
 
             Arc a = new Arc(this, s);
-            _mapArcs[s.Name] = a;
+            _arcsMap[s.Name] = a;
         }
 
         public void AddStateCallback(StateCallback method, bool enter)
@@ -64,21 +64,21 @@ namespace Library
 
         public void AddTransitArcCallback(string target, ArcCallback method)
         {
-            if (!_mapArcs.ContainsKey(target))
+            if (!_arcsMap.ContainsKey(target))
             {
                 throw new StateMachineException(ErrorCodes.UnknownArc, StateMachineException.MakeArcName(Name, target));
             }
 
-            Arc a = _mapArcs[target];
+            Arc a = _arcsMap[target];
 
-            a.AddTransitArcCallback(method);
+            a.AddTransitionCallback(method);
         }
 
         public void CallEnterCallbacks()
         {
             foreach (StateCallbackInvoker sci in _enterCallbacks)
             {
-                sci.Invoke(Name, true);
+                sci.Invoke(Name);
             }
         }
 
@@ -86,7 +86,7 @@ namespace Library
         {
             foreach (StateCallbackInvoker sci in _exitCallbacks)
             {
-                sci.Invoke(Name, false);
+                sci.Invoke(Name);
             }
         }
     }

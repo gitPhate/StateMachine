@@ -1,0 +1,5 @@
+D:\development\StateMachine\Library\bin\x86\Debug\Library.dll
+D:\development\StateMachine\Library\bin\x86\Debug\Library.pdb
+D:\development\StateMachine\Library\obj\x86\Debug\Library.csprojResolveAssemblyReference.cache
+D:\development\StateMachine\Library\obj\x86\Debug\Library.dll
+D:\development\StateMachine\Library\obj\x86\Debug\Library.pdb

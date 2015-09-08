@@ -23,13 +23,13 @@ namespace Tester
             machine.AddArc("B", "R");
             machine.AddArc("B", "G");
 
-            machine.AddEnterStateCallback("R", (currentState, isEnter) => Console.WriteLine("Entering state {0}", currentState));
-            machine.AddEnterStateCallback("G", (currentState, isEnter) => Console.WriteLine("Entering state {0}", currentState));
-            machine.AddEnterStateCallback("B", (currentState, isEnter) => Console.WriteLine("Entering state {0}", currentState));
+            machine.AddEnterStateCallback("R", (currentState) => Console.WriteLine("Entering state {0}", currentState));
+            machine.AddEnterStateCallback("G", (currentState) => Console.WriteLine("Entering state {0}", currentState));
+            machine.AddEnterStateCallback("B", (currentState) => Console.WriteLine("Entering state {0}", currentState));
 
-            machine.AddExitStateCallback("R", (currentState, isEnter) => Console.WriteLine("Exiting state {0}", currentState));
-            machine.AddExitStateCallback("G", (currentState, isEnter) => Console.WriteLine("Exiting state {0}", currentState));
-            machine.AddExitStateCallback("B", (x, y) => Console.WriteLine("Exiting state B"));
+            machine.AddExitStateCallback("R", (currentState) => Console.WriteLine("Exiting state {0}", currentState));
+            machine.AddExitStateCallback("G", (currentState) => Console.WriteLine("Exiting state {0}", currentState));
+            machine.AddExitStateCallback("B", (currentState) => Console.WriteLine("Exiting state {0}", currentState));
 
             machine.AddTransitArcCallback("R", "G", (sourceState, targetState) => Console.WriteLine("Going from {0} to {1}", sourceState, targetState));
             machine.AddTransitArcCallback("R", "B", (sourceState, targetState) => Console.WriteLine("Going from {0} to {1}", sourceState, targetState));
@@ -43,21 +43,6 @@ namespace Tester
             machine.GoToState("B");
 
             Console.ReadLine();
-        }
-
-        public void EnterInAState(string currentState, bool isEnter)
-        {
-            Console.WriteLine("Entering state {0}", currentState);
-        }
-
-        public void ExitFromAState(string currentState, bool isEnter)
-        {
-            Console.WriteLine("Entering state {0}", currentState);
-        }
-
-        public void GoingToState(string sourceState, string targetState)
-        {
-            Console.WriteLine("Going from {0} to {1}", sourceState, targetState);
         }
     }
 }
