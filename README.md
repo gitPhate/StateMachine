@@ -1,6 +1,6 @@
 # StateMachine
-This little project was born from an old (but good) <a href="https://en.wikipedia.org/wiki/Finite-state_machine">state machine</a> written in C++.<br />
-My goal is to make it object-oriented and suitable for a .NET application.
+This little project was born from an old (but good) <a href="https://en.wikipedia.org/wiki/Finite-state_machine">state machine</a> written in C++, with the goal to improve it and make it object-oriented and suited for a .NET application.<br />
+Special thanks to the [stateless](https://github.com/nblumhardt/stateless) project, that helped me pretty much.
 
 ## Events
 Two event handlers have been implemented, **Transiting** and **Transited**. The **transiting** event fires *before* the exiting callbacks, while the **Transited** one is fired at the end of the process (*after* the entering callbacks).  
