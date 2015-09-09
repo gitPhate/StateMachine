@@ -9,22 +9,22 @@ namespace Library
 {
     public class StateContainer<TState>
     {
-        private Dictionary<TState, Transition<TState>> _arcsMap;
+        private Dictionary<TState, Transition<TState>> _transitionsMap;
         private IList<StateCallbackInvoker<TState>> _enterCallbacks;
         private IList<StateCallbackInvoker<TState>> _exitCallbacks;
 
         public TState Name { get; private set; }
 
-        public Transition<TState> this[StateContainer<TState> s]
+        public Transition<TState> this[StateContainer<TState> state]
         {
             get
             {
-                if (!_arcsMap.ContainsKey(s.Name))
+                if (!_transitionsMap.ContainsKey(state.Name))
                 {
                     return null;
                 }
 
-                return _arcsMap[s.Name];
+                return _transitionsMap[state.Name];
             }
         }
 
@@ -32,20 +32,20 @@ namespace Library
         {
             Name = stateName;
 
-            _arcsMap = new Dictionary<TState, Transition<TState>>();
+            _transitionsMap = new Dictionary<TState, Transition<TState>>();
             _enterCallbacks = new List<StateCallbackInvoker<TState>>();
             _exitCallbacks = new List<StateCallbackInvoker<TState>>();
         }
 
-        public void AddArc(StateContainer<TState> s)
+        public void AddTransition(StateContainer<TState> state)
         {
-            if (_arcsMap.ContainsKey(s.Name))
+            if (_transitionsMap.ContainsKey(state.Name))
             {
-                throw new StateMachineException<TState>(ErrorCodes.AlreadyPresentArc, StateMachineException<TState>.MakeArcName(Name, s.Name));
+                throw new StateMachineException<TState>(ErrorCodes.AlreadyPresentArc, StateMachineException<TState>.MakeArcName(Name, state.Name));
             }
 
-            Transition<TState> a = new Transition<TState>(this, s);
-            _arcsMap[s.Name] = a;
+            Transition<TState> transition = new Transition<TState>(this, state);
+            _transitionsMap[state.Name] = transition;
         }
 
         public void AddStateCallback(StateCallback<TState> method, bool enter)
@@ -62,14 +62,14 @@ namespace Library
             }
         }
 
-        public void AddTransitArcCallback(TState target, TransitionCallback<TState> method)
+        public void AddTransitionCallback(TState target, TransitionCallback<TState> method)
         {
-            if (!_arcsMap.ContainsKey(target))
+            if (!_transitionsMap.ContainsKey(target))
             {
                 throw new StateMachineException<TState>(ErrorCodes.UnknownArc, StateMachineException<TState>.MakeArcName(Name, target));
             }
 
-            Transition<TState> a = _arcsMap[target];
+            Transition<TState> a = _transitionsMap[target];
 
             a.AddTransitionCallback(method);
         }

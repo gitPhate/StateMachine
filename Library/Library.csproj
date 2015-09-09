@@ -74,6 +74,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="EventArgs\AbstractStateEventArgs.cs" />
+    <Compile Include="EventArgs\TransitedEventArgs.cs" />
+    <Compile Include="EventArgs\TransitingEventArgs.cs" />
     <Compile Include="Transition.cs" />
     <Compile Include="Invokers\TransitionCallbackInvoker.cs" />
     <Compile Include="ErrorCodes.cs" />

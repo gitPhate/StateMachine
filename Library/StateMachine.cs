@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using Library.Exceptions;
 using Library.Invokers;
+using Library.EventArgs;
 
 namespace Library
 {
@@ -13,9 +14,6 @@ namespace Library
     public class StateMachine<TState>
     {
         private IDictionary<TState, StateContainer<TState>> _statesMap;
-
-        public bool Transiting;
-        public StateContainer<TState> CurrentState { get; private set; }
         private StateContainer<TState> this[TState state]
         {
             get
@@ -29,16 +27,37 @@ namespace Library
             }
         }
 
+        public bool IsTransiting;
+        public StateContainer<TState> CurrentState { get; private set; }
+
+        public event EventHandler<TransitingEventArgs<TState>> Transiting;
+        public event EventHandler<TransitedEventArgs<TState>> Transited;
+
+        protected virtual void OnTransiting(TransitingEventArgs<TState> e)
+        {
+            if (Transiting != null)
+            {
+                Transiting(this, e);
+            }
+        }
+
+        protected virtual void OnTransited(TransitedEventArgs<TState> e)
+        {
+            if (Transited != null)
+            {
+                Transited(this, e);
+            }
+        }
 
         public StateMachine()
         {
             _statesMap = new Dictionary<TState, StateContainer<TState>>();
-            Transiting = false;
+            IsTransiting = false;
 
             CurrentState = null;
         }
 
-        public StateMachine<TState> AddState(TState stateName)
+        public void AddState(TState stateName)
         {
             if (this[stateName] != null)
             {
@@ -47,11 +66,9 @@ namespace Library
 
             StateContainer<TState> state = new StateContainer<TState>(stateName);
             _statesMap[stateName] = state;
-
-            return this;
         }
 
-        public StateMachine<TState> AddTransition(TState source, TState target)
+        public void AddTransition(TState source, TState target)
         {
             StateContainer<TState> sourceState = this[source];
 
@@ -67,8 +84,7 @@ namespace Library
                 throw new StateMachineException<TState>(ErrorCodes.UnknownState, target);
             }
 
-            sourceState.AddArc(targetState);
-            return this;
+            sourceState.AddTransition(targetState);
         }
 
         public void AddEnterStateCallback(TState targetStateName, StateCallback<TState> method)
@@ -97,26 +113,27 @@ namespace Library
 
         public void AddTransitionCallback(TState source, TState target, TransitionCallback<TState> method)
         {
-            StateContainer<TState> s = this[source];
+            StateContainer<TState> state = this[source];
 
-            if (s == null)
+            if (state == null)
             {
                 throw new StateMachineException<TState>(ErrorCodes.UnknownState, source);
             }
 
-            s.AddTransitArcCallback(target, method);
+            state.AddTransitionCallback(target, method);
         }
 
         public void GoToState(TState stateName)
         {
             try
             {
-                if (Transiting)
+                if (IsTransiting)
                 {
                     throw new StateMachineException<TState>(ErrorCodes.AlreadyTransiting, stateName);
                 }
 
-                Transiting = true;
+                IsTransiting = true;
+                OnTransiting(new TransitingEventArgs<TState>(stateName));
                 StateContainer<TState> target = this[stateName];
 
                 if (target == null)
@@ -126,24 +143,25 @@ namespace Library
 
                 if (CurrentState != null)
                 {
-                    Transition<TState> arc = CurrentState[target];
+                    Transition<TState> transition = CurrentState[target];
 
-                    if (arc == null)
+                    if (transition == null)
                     {
                         throw new StateMachineException<TState>(ErrorCodes.InvalidTransition, StateMachineException<TState>.MakeArcName(CurrentState.Name, target.Name));
                     }
 
                     CurrentState.CallExitCallbacks();
-                    arc.CallTransitionCallbacks();
+                    transition.CallTransitionCallbacks();
                 }
 
                 CurrentState = target;
                 target.CallEnterCallbacks();
-                Transiting = false;
+                IsTransiting = false;
+                OnTransited(new TransitedEventArgs<TState>(CurrentState.Name));
             }
             catch
             {
-                Transiting = false;
+                IsTransiting = false;
                 throw;
             }
         }

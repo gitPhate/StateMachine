@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Library;
+using Library.EventArgs;
 
 namespace Tester
 {
@@ -46,10 +47,13 @@ namespace Tester
             machine.AddTransitionCallback(States.B, States.R, callbacks.Transition);
             machine.AddTransitionCallback(States.B, States.G, callbacks.Transition);
 
+            machine.Transiting += new EventHandler<TransitingEventArgs<States>>(callbacks.TransitingEventHandler);
+            machine.Transited += new EventHandler<TransitedEventArgs<States>>(callbacks.TransitedEventHandler);
+
             try
             {
                 machine.GoToState(States.R);
-                machine.GoToState(States.R);
+                machine.GoToState(States.G);
                 machine.GoToState(States.B);
             }
             catch (Exception ex)
@@ -59,7 +63,6 @@ namespace Tester
 
             Console.ReadLine();
         }
-
         
     }
 
@@ -72,12 +75,22 @@ namespace Tester
 
         public void ExitingState(States state)
         {
-            Console.WriteLine("Entering state {0}", state);
+            Console.WriteLine("Exiting state {0}", state);
         }
 
         public void Transition(States from, States to)
         {
             Console.WriteLine("Going from {0} to {1}", from, to);
+        }
+
+        public void TransitingEventHandler(object sender, TransitingEventArgs<States> e)
+        {
+            Console.WriteLine("Event Fired: Transiting into state {0}", e.State);
+        }
+
+        public void TransitedEventHandler(object sender, TransitedEventArgs<States> e)
+        {
+            Console.WriteLine("Event Fired: Transited into state {0}", e.State);
         }
     }
 }
