@@ -1,7 +1,8 @@
 # StateMachine
-Simple StateMachine ported from C
+This little project was born from an old (but good) <a href="https://en.wikipedia.org/wiki/Finite-state_machine">state machine</a> written in C++.<br />
+My goal is to make it object-oriented and suitable for a .NET application.
 
-Working example of configuration:
+This is a working example of the configuration:
 ```C#
 namespace Tester
 {
