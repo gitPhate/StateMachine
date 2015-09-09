@@ -69,9 +69,9 @@ namespace Library
                 throw new StateMachineException<TState>(ErrorCodes.UnknownArc, StateMachineException<TState>.MakeArcName(Name, target));
             }
 
-            Transition<TState> a = _transitionsMap[target];
+            Transition<TState> transition = _transitionsMap[target];
 
-            a.AddTransitionCallback(method);
+            transition.AddTransitionCallback(method);
         }
 
         public void CallEnterCallbacks()
