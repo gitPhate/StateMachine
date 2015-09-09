@@ -13,6 +13,7 @@ namespace Library
         AlreadyPresentArc,
         UnknownArc,
         InvalidTransition,
-        PostedStateAreadySet
+        //PostedStateAreadySet,
+        AlreadyTransiting
     }
 }

@@ -75,14 +75,15 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Transition.cs" />
-    <Compile Include="CallbackInvokers\TransitionCallbackInvoker.cs" />
+    <Compile Include="Invokers\TransitionCallbackInvoker.cs" />
     <Compile Include="ErrorCodes.cs" />
-    <Compile Include="CallbackInvokers\StateCallbackInvoker.cs" />
+    <Compile Include="Invokers\StateCallbackInvoker.cs" />
     <Compile Include="StateContainer.cs" />
     <Compile Include="StateMachine.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Exceptions\StateMachineException.cs" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

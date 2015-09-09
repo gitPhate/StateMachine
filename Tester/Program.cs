@@ -46,9 +46,16 @@ namespace Tester
             machine.AddTransitionCallback(States.B, States.R, callbacks.Transition);
             machine.AddTransitionCallback(States.B, States.G, callbacks.Transition);
 
-            machine.GoToState(States.R);
-            machine.GoToState(States.G);
-            machine.GoToState(States.B);
+            try
+            {
+                machine.GoToState(States.R);
+                machine.GoToState(States.R);
+                machine.GoToState(States.B);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error: {0}", ex.Message);
+            }
 
             Console.ReadLine();
         }

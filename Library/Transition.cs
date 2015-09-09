@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Library.CallbackInvokers;
+using Library.Invokers;
 using Library.Exceptions;
 
 namespace Library
@@ -30,11 +30,11 @@ namespace Library
 
             if (IsUnlinked)
             {
-                throw new StateMachineException(ErrorCodes.InvalidArc, StateMachineException.MakeArcName(source.Name, target.Name));
+                throw new StateMachineException<TState>(ErrorCodes.InvalidArc, StateMachineException<TState>.MakeArcName(source.Name, target.Name));
             }
         }
 
-        public void AddTransitionCallback(ArcCallback<TState> method)
+        public void AddTransitionCallback(TransitionCallback<TState> method)
         {
             TransitionCallbackInvoker<TState> aci = new TransitionCallbackInvoker<TState>(method);
             _transitCallbacks.Add(aci);

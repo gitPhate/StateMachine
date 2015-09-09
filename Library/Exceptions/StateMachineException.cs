@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Library.Exceptions
 {
-    public class StateMachineException : Exception
+    public class StateMachineException<TState> : Exception
     {
         public ErrorCodes ErrorCode { get; private set; }
 
@@ -14,12 +14,23 @@ namespace Library.Exceptions
         {
         }
 
+        public StateMachineException(ErrorCodes ec, TState currentState)
+            : this(ec, currentState, null)
+        {
+        }
+
         public StateMachineException(ErrorCodes ec, string message)
             : this(ec, message, null)
         {
         }
 
-        public StateMachineException(ErrorCodes ec, string message, Exception innerException)
+        public StateMachineException(ErrorCodes ec, TState currentState, Exception innerException)
+            : this(ec, currentState.ToString(), innerException)
+        {
+            ErrorCode = ec;
+        }
+
+        private StateMachineException(ErrorCodes ec, string message, Exception innerException)
             : base(message, innerException)
         {
             ErrorCode = ec;

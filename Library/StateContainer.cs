@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Library.CallbackInvokers;
+using Library.Invokers;
 using Library.Exceptions;
 
 namespace Library
@@ -41,7 +41,7 @@ namespace Library
         {
             if (_arcsMap.ContainsKey(s.Name))
             {
-                throw new StateMachineException(ErrorCodes.AlreadyPresentArc, StateMachineException.MakeArcName(Name, s.Name));
+                throw new StateMachineException<TState>(ErrorCodes.AlreadyPresentArc, StateMachineException<TState>.MakeArcName(Name, s.Name));
             }
 
             Transition<TState> a = new Transition<TState>(this, s);
@@ -62,11 +62,11 @@ namespace Library
             }
         }
 
-        public void AddTransitArcCallback(TState target, ArcCallback<TState> method)
+        public void AddTransitArcCallback(TState target, TransitionCallback<TState> method)
         {
             if (!_arcsMap.ContainsKey(target))
             {
-                throw new StateMachineException(ErrorCodes.UnknownArc, StateMachineException.MakeArcName(Name, target));
+                throw new StateMachineException<TState>(ErrorCodes.UnknownArc, StateMachineException<TState>.MakeArcName(Name, target));
             }
 
             Transition<TState> a = _arcsMap[target];
