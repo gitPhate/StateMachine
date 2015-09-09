@@ -3,157 +3,140 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Library.Exceptions;
-using Library.Callbacks;
+using Library.CallbackInvokers;
 
 namespace Library
 {
-    public delegate void StateCallback(string currentState);
-    public delegate void ArcCallback(string sourceState, string targetState);
+    public delegate void StateCallback<TState>(TState currentState);
+    public delegate void ArcCallback<TState>(TState sourceState, TState targetState);
 
-    public class StateMachine
+    public class StateMachine<TState>
     {
-        private Dictionary<string, State> _statesMap;
-        private string _postedState;
+        private IDictionary<TState, StateContainer<TState>> _statesMap;
 
         public bool Transiting;
-        public State CurrentState { get; private set; }
-        private State this[string stateName]
+        public StateContainer<TState> CurrentState { get; private set; }
+        private StateContainer<TState> this[TState state]
         {
             get
             {
-                if (!_statesMap.ContainsKey(stateName))
+                if (!_statesMap.ContainsKey(state))
                 {
                     return null;
                 }
 
-                return _statesMap[stateName];
+                return _statesMap[state];
             }
         }
 
 
         public StateMachine()
         {
-            _statesMap = new Dictionary<string, State>();
-            _postedState = string.Empty;
+            _statesMap = new Dictionary<TState, StateContainer<TState>>();
             Transiting = false;
 
             CurrentState = null;
         }
 
-        public void AddState(string stateName)
+        public void AddState(TState stateName)
         {
             if (this[stateName] != null)
             {
-                throw new StateMachineException(ErrorCodes.AlreadyPresentState, stateName);
+                throw new StateMachineException(ErrorCodes.AlreadyPresentState, stateName.ToString());
             }
 
-            State s = new State(stateName);
+            StateContainer<TState> s = new StateContainer<TState>(stateName);
             _statesMap[stateName] = s;
         }
 
-        public void AddArc(string source, string target)
+        public void AddTransition(TState source, TState target)
         {
-            State sourceState = this[source];
+            StateContainer<TState> sourceState = this[source];
 
             if (sourceState == null)
             {
-                throw new StateMachineException(ErrorCodes.UnknownState, source);
+                throw new StateMachineException(ErrorCodes.UnknownState, source.ToString());
             }
 
-            State targetState = this[target];
+            StateContainer<TState> targetState = this[target];
 
             if (targetState == null)
             {
-                throw new StateMachineException(ErrorCodes.UnknownState, target);
+                throw new StateMachineException(ErrorCodes.UnknownState, target.ToString());
             }
 
             sourceState.AddArc(targetState);
         }
 
-        public void AddEnterStateCallback(string targetStateName, StateCallback method)
+        public void AddEnterStateCallback(TState targetStateName, StateCallback<TState> method)
         {
-            State targetState = this[targetStateName];
+            StateContainer<TState> targetState = this[targetStateName];
 
             if (targetState == null)
             {
-                throw new StateMachineException(ErrorCodes.UnknownState, targetStateName);
+                throw new StateMachineException(ErrorCodes.UnknownState, targetStateName.ToString());
             }
 
             targetState.AddStateCallback(method, true);
         }
 
-        public void AddExitStateCallback(string targetStateName, StateCallback method)
+        public void AddExitStateCallback(TState targetStateName, StateCallback<TState> method)
         {
-            State targetState = this[targetStateName];
+            StateContainer<TState> targetState = this[targetStateName];
 
             if (targetState == null)
             {
-                throw new StateMachineException(ErrorCodes.UnknownState, targetStateName);
+                throw new StateMachineException(ErrorCodes.UnknownState, targetStateName.ToString());
             }
 
             targetState.AddStateCallback(method, false);
         }
 
-        public void AddTransitionCallback(string source, string target, ArcCallback method)
+        public void AddTransitionCallback(TState source, TState target, ArcCallback<TState> method)
         {
-            State s = this[source];
+            StateContainer<TState> s = this[source];
 
             if (s == null)
             {
-                throw new StateMachineException(ErrorCodes.UnknownState, source);
+                throw new StateMachineException(ErrorCodes.UnknownState, source.ToString());
             }
 
             s.AddTransitArcCallback(target, method);
         }
 
-        public void GoToState(string stateName)
+        public void GoToState(TState stateName)
         {
-            if (Transiting)
-            {
-                if (_postedState.Length != 0)
-                {
-                    throw new StateMachineException(ErrorCodes.PostedStateAreadySet, string.Empty);
-                }
-
-                _postedState = stateName;
-                return;
-            }
-
             try
             {
-            PostedStateRestart:
+                if (Transiting)
+                {
+                    return;
+                }
+
                 Transiting = true;
+                StateContainer<TState> target = this[stateName];
 
-                State target = this[stateName];
+            if (target == null)
+            {
+                throw new StateMachineException(ErrorCodes.UnknownState, stateName.ToString());
+            }
 
-                if (target == null)
+            if (CurrentState != null)
+            {
+                Transition<TState> arc = CurrentState[target];
+
+                if (arc == null)
                 {
-                    throw new StateMachineException(ErrorCodes.UnknownState, stateName);
+                    throw new StateMachineException(ErrorCodes.InvalidTransition, StateMachineException.MakeArcName(CurrentState.Name, target.Name));
                 }
 
-                if (CurrentState != null)
-                {
-                    Arc arc = CurrentState[target];
+                CurrentState.CallExitCallbacks();
+                arc.CallTransitionCallbacks();
+            }
 
-                    if (arc == null)
-                    {
-                        throw new StateMachineException(ErrorCodes.InvalidTransition, StateMachineException.MakeArcName(CurrentState.Name, target.Name));
-                    }
-
-                    CurrentState.CallExitCallbacks();
-                    arc.CallTransitionCallbacks();
-                }
-
-                CurrentState = target;
-                target.CallEnterCallbacks();
-                Transiting = false;
-
-                if (_postedState.Length != 0)
-                {
-                    stateName = _postedState;
-                    _postedState = string.Empty;
-                    goto PostedStateRestart; //tail recursion
-                }
+            CurrentState = target;
+            target.CallEnterCallbacks();
+            Transiting = false;
             }
             catch
             {

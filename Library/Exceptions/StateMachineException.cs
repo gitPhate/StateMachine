@@ -25,7 +25,7 @@ namespace Library.Exceptions
             ErrorCode = ec;
         }
 
-        public static string MakeArcName(string source, string target)
+        public static string MakeArcName<TState>(TState source, TState target)
         {
             return string.Format("{0} -> {1}", source, target);
         }

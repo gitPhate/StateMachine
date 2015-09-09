@@ -6,43 +6,71 @@ using Library;
 
 namespace Tester
 {
+    public enum States
+    {
+        R,
+        G,
+        B
+    }
+
     class Program
     {
         static void Main(string[] args)
         {
-            StateMachine machine = new StateMachine();
+            StateMachine<States> machine = new StateMachine<States>();
+            StateMachineCallbacks callbacks = new StateMachineCallbacks();
 
-            machine.AddState("R");
-            machine.AddState("G");
-            machine.AddState("B");
+            machine.AddState(States.R);
+            machine.AddState(States.G);
+            machine.AddState(States.B);
 
-            machine.AddArc("R", "G");
-            machine.AddArc("R", "B");
-            machine.AddArc("G", "R");
-            machine.AddArc("G", "B");
-            machine.AddArc("B", "R");
-            machine.AddArc("B", "G");
+            machine.AddTransition(States.R, States.G);
+            machine.AddTransition(States.R, States.B);
+            machine.AddTransition(States.G, States.R);
+            machine.AddTransition(States.G, States.B);
+            machine.AddTransition(States.B, States.R);
+            machine.AddTransition(States.B, States.G);
 
-            machine.AddEnterStateCallback("R", (currentState) => Console.WriteLine("Entering state {0}", currentState));
-            machine.AddEnterStateCallback("G", (currentState) => Console.WriteLine("Entering state {0}", currentState));
-            machine.AddEnterStateCallback("B", (currentState) => Console.WriteLine("Entering state {0}", currentState));
+            machine.AddEnterStateCallback(States.R, callbacks.EnteringState);
+            machine.AddEnterStateCallback(States.G, callbacks.EnteringState);
+            machine.AddEnterStateCallback(States.B, callbacks.EnteringState);
 
-            machine.AddExitStateCallback("R", (currentState) => Console.WriteLine("Exiting state {0}", currentState));
-            machine.AddExitStateCallback("G", (currentState) => Console.WriteLine("Exiting state {0}", currentState));
-            machine.AddExitStateCallback("B", (currentState) => Console.WriteLine("Exiting state {0}", currentState));
+            machine.AddExitStateCallback(States.R, callbacks.ExitingState);
+            machine.AddExitStateCallback(States.G, callbacks.ExitingState);
+            machine.AddExitStateCallback(States.B, callbacks.ExitingState);
 
-            machine.AddTransitArcCallback("R", "G", (sourceState, targetState) => Console.WriteLine("Going from {0} to {1}", sourceState, targetState));
-            machine.AddTransitArcCallback("R", "B", (sourceState, targetState) => Console.WriteLine("Going from {0} to {1}", sourceState, targetState));
-            machine.AddTransitArcCallback("G", "R", (sourceState, targetState) => Console.WriteLine("Going from {0} to {1}", sourceState, targetState));
-            machine.AddTransitArcCallback("G", "B", (sourceState, targetState) => Console.WriteLine("Going from {0} to {1}", sourceState, targetState));
-            machine.AddTransitArcCallback("B", "R", (sourceState, targetState) => Console.WriteLine("Going from {0} to {1}", sourceState, targetState));
-            machine.AddTransitArcCallback("B", "G", (sourceState, targetState) => Console.WriteLine("Going from {0} to {1}", sourceState, targetState));
+            machine.AddTransitionCallback(States.R, States.G, callbacks.Transition);
+            machine.AddTransitionCallback(States.R, States.B, callbacks.Transition);
+            machine.AddTransitionCallback(States.G, States.R, callbacks.Transition);
+            machine.AddTransitionCallback(States.G, States.B, callbacks.Transition);
+            machine.AddTransitionCallback(States.B, States.R, callbacks.Transition);
+            machine.AddTransitionCallback(States.B, States.G, callbacks.Transition);
 
-            machine.GoToState("R");
-            machine.GoToState("G");
-            machine.GoToState("B");
+            machine.GoToState(States.R);
+            machine.GoToState(States.G);
+            machine.GoToState(States.B);
 
             Console.ReadLine();
+        }
+
+        
+    }
+
+    public class StateMachineCallbacks
+    {
+        public void EnteringState(States state)
+        {
+            Console.WriteLine("Entering state {0}", state);
+        }
+
+        public void ExitingState(States state)
+        {
+            Console.WriteLine("Entering state {0}", state);
+        }
+
+        public void Transition(States from, States to)
+        {
+            Console.WriteLine("Going from {0} to {1}", from, to);
         }
     }
 }
