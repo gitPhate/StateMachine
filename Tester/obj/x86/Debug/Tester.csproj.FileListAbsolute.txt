@@ -1,7 +1,0 @@
-D:\development\StateMachine\Tester\bin\Debug\Tester.exe
-D:\development\StateMachine\Tester\bin\Debug\Tester.pdb
-D:\development\StateMachine\Tester\bin\Debug\Library.dll
-D:\development\StateMachine\Tester\bin\Debug\Library.pdb
-D:\development\StateMachine\Tester\obj\x86\Debug\Tester.csprojResolveAssemblyReference.cache
-D:\development\StateMachine\Tester\obj\x86\Debug\Tester.exe
-D:\development\StateMachine\Tester\obj\x86\Debug\Tester.pdb
