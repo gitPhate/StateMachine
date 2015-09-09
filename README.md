@@ -2,6 +2,10 @@
 This little project was born from an old (but good) <a href="https://en.wikipedia.org/wiki/Finite-state_machine">state machine</a> written in C++.<br />
 My goal is to make it object-oriented and suitable for a .NET application.
 
+## Events
+Two event handlers have been implemented, **Transiting** and **Transited**. The **transiting** event fires *before* the exiting callbacks, while the **Transited** one is fired at the end of the process (*after* the entering callbacks).  
+
+## Example
 This is a working example of the configuration:
 ```C#
 namespace Tester
@@ -46,6 +50,9 @@ namespace Tester
             machine.AddTransitionCallback(States.B, States.R, callbacks.Transition);
             machine.AddTransitionCallback(States.B, States.G, callbacks.Transition);
 
+            machine.Transiting += new EventHandler<TransitingEventArgs<States>>(callbacks.TransitingEventHandler);
+            machine.Transited += new EventHandler<TransitedEventArgs<States>>(callbacks.TransitedEventHandler);
+
             try
             {
                 machine.GoToState(States.R);
@@ -59,7 +66,6 @@ namespace Tester
 
             Console.ReadLine();
         }
-
         
     }
 
@@ -72,12 +78,22 @@ namespace Tester
 
         public void ExitingState(States state)
         {
-            Console.WriteLine("Entering state {0}", state);
+            Console.WriteLine("Exiting state {0}", state);
         }
 
         public void Transition(States from, States to)
         {
             Console.WriteLine("Going from {0} to {1}", from, to);
+        }
+
+        public void TransitingEventHandler(object sender, TransitingEventArgs<States> e)
+        {
+            Console.WriteLine("Event Fired: Transiting into state {0}", e.State);
+        }
+
+        public void TransitedEventHandler(object sender, TransitedEventArgs<States> e)
+        {
+            Console.WriteLine("Event Fired: Transited into state {0}", e.State);
         }
     }
 }
@@ -85,11 +101,17 @@ namespace Tester
 
 The output is:
 ```
+Event Fired: Transiting into state R
 Entering state R
+Event Fired: Transited into state R
+Event Fired: Transiting into state G
 Exiting state R
 Going from R to G
 Entering state G
+Event Fired: Transited into state G
+Event Fired: Transiting into state B
 Exiting state G
 Going from G to B
 Entering state B
+Event Fired: Transited into state B
 ```
