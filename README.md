@@ -44,13 +44,13 @@ machine.AddTransitionCallback(States.B, States.R, (from, to) => Console.WriteLin
 machine.AddTransitionCallback(States.B, States.G, (from, to) => Console.WriteLine("Going from {0} to {1}", from, to));
 ```
 
-### Declaring the state machine
+### StateMachine declaration
 ```C#
 StateMachine<States> machine = new StateMachine<States>();
 ```
 When declaring, StateMachine accepts an enum that indicates the states type.
 
-### Adding the logic
+### Adding logic
 ```C#
 machine.AddState(States.R);
 ```
@@ -61,7 +61,7 @@ machine.AddTransition(States.R, States.G);
 ```
 Call the `AddTransition()` method to add a new transition between two states.
 
-### Adding an action
+### Adding actions
 The actions performed by StateMachine can be defined using delegates. They will be kept in memory by StateMachine and executed when desired.<br />
 ```C#
 machine.AddEnterStateCallback(States.R, (state) => Console.WriteLine("Entering state {0}", state));
