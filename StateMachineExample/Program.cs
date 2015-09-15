@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Library;
-using Library.EventArgs;
+using StateMachine;
+using StateMachine.EventArgs;
 
-namespace Tester
+namespace StateMachineExample
 {
     public enum States
     {

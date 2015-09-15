@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Library.EventArgs
+namespace StateMachine.EventArgs
 {
     public class AbstractStateEventArgs<TState> : System.EventArgs
     {

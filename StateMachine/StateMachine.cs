@@ -2,11 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Library.Exceptions;
-using Library.Invokers;
-using Library.EventArgs;
+using StateMachine.Exceptions;
+using StateMachine.Invokers;
+using StateMachine.EventArgs;
 
-namespace Library
+namespace StateMachine
 {
     public delegate void StateCallback<TState>(TState currentState);
     public delegate void TransitionCallback<TState>(TState sourceState, TState targetState);

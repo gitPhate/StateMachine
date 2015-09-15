@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Library.Callbacks;
-using Library.Exceptions;
+using StateMachine.Callbacks;
+using StateMachine.Exceptions;
 
-namespace Library
+namespace StateMachine
 {
     public class State
     {

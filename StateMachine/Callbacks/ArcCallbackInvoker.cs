@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Library.Callbacks
+namespace StateMachine.Callbacks
 {
     public class ArcCallbackInvoker
     {

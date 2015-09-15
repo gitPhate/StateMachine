@@ -3,13 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Library.CallbackInvokers
+namespace StateMachine.Invokers
 {
     public class TransitionCallbackInvoker<TState>
     {
-        public ArcCallback<TState> Callback { get; private set; }
+        public TransitionCallback<TState> Callback { get; private set; }
 
-        public TransitionCallbackInvoker(ArcCallback<TState> callback)
+        public TransitionCallbackInvoker(TransitionCallback<TState> callback)
         {
             Callback = callback;
         }

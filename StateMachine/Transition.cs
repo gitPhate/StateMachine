@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Library.Invokers;
-using Library.Exceptions;
+using StateMachine.Invokers;
+using StateMachine.Exceptions;
 
-namespace Library
+namespace StateMachine
 {
     public class Transition<TState>
     {
