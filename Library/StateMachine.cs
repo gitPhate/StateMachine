@@ -64,13 +64,13 @@ namespace Library
                 throw new StateMachineException<TState>(ErrorCodes.AlreadyPresentState, stateName);
             }
 
-            StateContainer<TState> state = new StateContainer<TState>(stateName);
+            var state = new StateContainer<TState>(stateName);
             _statesMap[stateName] = state;
         }
 
         public void AddTransition(TState source, TState target)
         {
-            StateContainer<TState> sourceState = this[source];
+            var sourceState = this[source];
 
             if (sourceState == null)
             {
@@ -89,7 +89,7 @@ namespace Library
 
         public void AddEnterStateCallback(TState targetStateName, StateCallback<TState> method)
         {
-            StateContainer<TState> targetState = this[targetStateName];
+            var targetState = this[targetStateName];
 
             if (targetState == null)
             {
@@ -101,7 +101,7 @@ namespace Library
 
         public void AddExitStateCallback(TState targetStateName, StateCallback<TState> method)
         {
-            StateContainer<TState> targetState = this[targetStateName];
+            var targetState = this[targetStateName];
 
             if (targetState == null)
             {
@@ -113,7 +113,7 @@ namespace Library
 
         public void AddTransitionCallback(TState source, TState target, TransitionCallback<TState> method)
         {
-            StateContainer<TState> state = this[source];
+            var state = this[source];
 
             if (state == null)
             {
@@ -134,7 +134,7 @@ namespace Library
 
                 IsTransiting = true;
                 OnTransiting(new TransitingEventArgs<TState>(stateName));
-                StateContainer<TState> target = this[stateName];
+                var target = this[stateName];
 
                 if (target == null)
                 {
@@ -143,7 +143,7 @@ namespace Library
 
                 if (CurrentState != null)
                 {
-                    Transition<TState> transition = CurrentState[target];
+                    var transition = CurrentState[target];
 
                     if (transition == null)
                     {
