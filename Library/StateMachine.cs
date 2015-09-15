@@ -27,7 +27,7 @@ namespace Library
             }
         }
 
-        public bool IsTransiting;
+        public bool IsTransiting { get; private set; }
         public StateContainer<TState> CurrentState { get; private set; }
 
         public event EventHandler<TransitingEventArgs<TState>> Transiting;
