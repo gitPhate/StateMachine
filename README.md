@@ -1,4 +1,7 @@
 # StateMachine
+
+[![Build Status](https://travis-ci.org/sdenel/StateMachine.svg?branch=master)](https://travis-ci.org/sdenel/StateMachine)
+
 This little project was born from an old (but good) <a href="https://en.wikipedia.org/wiki/Finite-state_machine">state machine</a> written in C++, with the goal to improve it and make it object-oriented and suited for a .NET application.<br />
 Special thanks to the [stateless](https://github.com/nblumhardt/stateless) project, that helped me pretty much.
 
