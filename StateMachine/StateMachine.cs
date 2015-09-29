@@ -64,13 +64,13 @@ namespace StateMachine
                 throw new StateMachineException<TState>(ErrorCodes.AlreadyPresentState, stateName);
             }
 
-            var state = new StateContainer<TState>(stateName);
+            StateContainer<TState> state = new StateContainer<TState>(stateName);
             _statesMap[stateName] = state;
         }
 
         public void AddTransition(TState source, TState target)
         {
-            var sourceState = this[source];
+            StateContainer<TState> sourceState = this[source];
 
             if (sourceState == null)
             {
@@ -89,7 +89,7 @@ namespace StateMachine
 
         public void AddEnterStateCallback(TState targetStateName, StateCallback<TState> method)
         {
-            var targetState = this[targetStateName];
+            StateContainer<TState> targetState = this[targetStateName];
 
             if (targetState == null)
             {
@@ -101,7 +101,7 @@ namespace StateMachine
 
         public void AddExitStateCallback(TState targetStateName, StateCallback<TState> method)
         {
-            var targetState = this[targetStateName];
+            StateContainer<TState> targetState = this[targetStateName];
 
             if (targetState == null)
             {
@@ -113,7 +113,7 @@ namespace StateMachine
 
         public void AddTransitionCallback(TState source, TState target, TransitionCallback<TState> method)
         {
-            var state = this[source];
+            StateContainer<TState> state = this[source];
 
             if (state == null)
             {
@@ -134,7 +134,7 @@ namespace StateMachine
 
                 IsTransiting = true;
                 OnTransiting(new TransitingEventArgs<TState>(stateName));
-                var target = this[stateName];
+                StateContainer<TState> target = this[stateName];
 
                 if (target == null)
                 {
@@ -143,7 +143,7 @@ namespace StateMachine
 
                 if (CurrentState != null)
                 {
-                    var transition = CurrentState[target];
+                    Transition<TState> transition = CurrentState[target];
 
                     if (transition == null)
                     {

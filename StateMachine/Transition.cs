@@ -36,7 +36,7 @@ namespace StateMachine
 
         public void AddTransitionCallback(TransitionCallback<TState> method)
         {
-            var aci = new TransitionCallbackInvoker<TState>(method);
+            TransitionCallbackInvoker<TState> aci = new TransitionCallbackInvoker<TState>(method);
             _transitCallbacks.Add(aci);
         }
 

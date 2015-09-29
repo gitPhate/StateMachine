@@ -44,13 +44,13 @@ namespace StateMachine
                 throw new StateMachineException<TState>(ErrorCodes.AlreadyPresentArc, StateMachineException<TState>.MakeArcName(Name, state.Name));
             }
 
-            var transition = new Transition<TState>(this, state);
+            Transition<TState> transition = new Transition<TState>(this, state);
             _transitionsMap[state.Name] = transition;
         }
 
         public void AddStateCallback(StateCallback<TState> method, bool enter)
         {
-            var sci = new StateCallbackInvoker<TState>(method);
+            StateCallbackInvoker<TState> sci = new StateCallbackInvoker<TState>(method);
 
             if (enter)
             {
@@ -69,7 +69,7 @@ namespace StateMachine
                 throw new StateMachineException<TState>(ErrorCodes.UnknownArc, StateMachineException<TState>.MakeArcName(Name, target));
             }
 
-            var transition = _transitionsMap[target];
+            Transition<TState> transition = _transitionsMap[target];
 
             transition.AddTransitionCallback(method);
         }

@@ -27,7 +27,7 @@ namespace StateMachineTest
         public void Test1()
         {
             #region Creating the state machine instance called machine
-            var machine = new StateMachine<States>();
+            StateMachine<States> machine = new StateMachine<States>();
 
             machine.AddState(States.R);
             machine.AddState(States.G);
