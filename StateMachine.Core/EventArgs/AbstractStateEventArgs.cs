@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace StateMachine.EventArgs
+﻿namespace StateMachine.Core.EventArgs
 {
     public class AbstractStateEventArgs<TState> : System.EventArgs
     {
@@ -13,7 +8,7 @@ namespace StateMachine.EventArgs
         {
             if (state == null)
             {
-                throw new ArgumentNullException("state");
+                throw new ArgumentNullException(nameof(state));
             }
 
             State = state;
