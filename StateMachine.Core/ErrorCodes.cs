@@ -2,13 +2,11 @@
 {
     public enum ErrorCodes
     {
-        AlreadyPresentState = 1,
-        UnknownState,
+        StateAlreadyAdded = 1,
+        StateNotFound,
         InvalidArc,
-        AlreadyPresentArc,
-        UnknownArc,
-        InvalidTransition,
-        //PostedStateAreadySet,
+        ArcAlreadyAdded,
+        ArcNotFound,
         AlreadyTransiting
     }
 }

@@ -5,37 +5,43 @@
         public ErrorCodes ErrorCode { get; }
 
         public StateMachineException(ErrorCodes ec)
-            : this(ec, "Unknown error from StateMachine", null)
+            : this(ec, GetErrorMessage(ec))
         {
         }
 
         public StateMachineException(ErrorCodes ec, TState currentState)
-            : this(ec, currentState, null)
+            : this(ec, GetErrorMessage(ec, currentState))
         {
         }
 
-        public StateMachineException(ErrorCodes ec, string message)
-            : this(ec, message, null)
+        public StateMachineException(ErrorCodes ec, string msg)
+            : base(msg)
         {
+            ErrorCode = ec;
         }
 
         public StateMachineException(ErrorCodes ec, TState sourceState, TState targetState)
-            : this(ec, MakeArcName(sourceState, targetState), null)
+            : this(ec, GetErrorMessage(ec, sourceState, targetState))
         {
         }
 
-        public StateMachineException(ErrorCodes ec, TState currentState, Exception? innerException)
-            : this(ec, currentState?.ToString() ?? string.Empty, innerException)
+        private static string GetErrorMessage(ErrorCodes errorCode, TState? sourceState = default, TState? targetState = default)
         {
-            ErrorCode = ec;
-        }
+            static string getArcName(TState source, TState target) => $"{source} -> {target}";
 
-        private StateMachineException(ErrorCodes ec, string message, Exception? innerException)
-            : base(message, innerException)
-        {
-            ErrorCode = ec;
-        }
+            string baseMsg =
+                errorCode switch
+                {
+                    ErrorCodes.StateAlreadyAdded => $"The state {sourceState} is already added",
+                    ErrorCodes.StateNotFound => $"No states {sourceState} is found",
+                    ErrorCodes.InvalidArc => $"The arc {getArcName(sourceState!, targetState!)} is invalid",
+                    ErrorCodes.ArcAlreadyAdded => $"The arc {getArcName(sourceState!, targetState!)} is already added",
+                    ErrorCodes.ArcNotFound => $"The arc {getArcName(sourceState!, targetState!)} is not found",
+                    ErrorCodes.AlreadyTransiting => "The state machine is already transiting",
+                    _ => throw new NotImplementedException()
+                };
 
-        public static string MakeArcName(TState source, TState target) => $"{source} -> {target}";
+            return $"[{errorCode}] {baseMsg}";
+        }
     }
 }

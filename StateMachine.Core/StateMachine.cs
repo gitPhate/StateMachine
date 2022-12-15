@@ -5,14 +5,14 @@ namespace StateMachine.Core
 {
     public class StateMachine<TState> where TState : notnull
     {
-        private readonly Dictionary<TState, StateContainer<TState>> _statesMap = new();
-        private StateContainer<TState> this[TState state]
+        private readonly Dictionary<TState, State<TState>> _statesMap = new();
+        private State<TState> this[TState state]
         {
             get
             {
                 if (!_statesMap.ContainsKey(state))
                 {
-                    throw new StateMachineException<TState>(ErrorCodes.UnknownState, state);
+                    throw new StateMachineException<TState>(ErrorCodes.StateNotFound, state);
                 }
 
                 return _statesMap[state];
@@ -20,87 +20,85 @@ namespace StateMachine.Core
         }
 
         public bool IsTransiting { get; private set; }
-        public StateContainer<TState>? CurrentState { get; private set; }
+        public TState CurrentState { get; private set; }
 
-        public event EventHandler<TransitingEventArgs<TState>>? Transiting = default;
-        public event EventHandler<TransitedEventArgs<TState>>? Transited = default;
+        public event EventHandler<TransitingEventArgs<TState>> Transiting = delegate { };
+        public event EventHandler<TransitedEventArgs<TState>> Transited = delegate { };
 
         protected virtual void OnTransiting(TransitingEventArgs<TState> e) => Transiting?.Invoke(this, e);
 
         protected virtual void OnTransited(TransitedEventArgs<TState> e) => Transited?.Invoke(this, e);
 
-        public StateMachine()
+        public StateMachine(TState currentState)
         {
             IsTransiting = false;
-            CurrentState = null;
+            CurrentState = currentState;
+            AddState(currentState);
         }
 
         public void AddState(TState stateName)
         {
             if (_statesMap.ContainsKey(stateName))
             {
-                throw new StateMachineException<TState>(ErrorCodes.AlreadyPresentState, stateName);
+                throw new StateMachineException<TState>(ErrorCodes.StateAlreadyAdded, stateName);
             }
 
-            StateContainer<TState> state = new(stateName);
+            State<TState> state = new(stateName);
             _statesMap[stateName] = state;
         }
 
-        public void AddTransition(TState source, TState target)
+        public void AddArc(TState source, TState target)
         {
-            StateContainer<TState> sourceState = this[source];
-            StateContainer<TState> targetState = this[target];
-            sourceState.AddTransition(targetState);
+            State<TState> sourceState = this[source];
+            State<TState> targetState = this[target];
+            sourceState.AddArc(targetState);
         }
 
-        public void AddEnterStateCallback(TState targetStateName, Action<TState> method)
+        public void AddEnterStateCallback(TState targetStateName, Func<TState, Task> callback)
         {
-            StateContainer<TState> targetState = this[targetStateName];
-            targetState.AddStateCallback(method, true);
+            State<TState> targetState = this[targetStateName];
+            targetState.AddStateCallback(callback, true);
         }
 
-        public void AddExitStateCallback(TState targetStateName, Action<TState> method)
+        public void AddExitStateCallback(TState targetStateName, Func<TState, Task> callback)
         {
-            StateContainer<TState> targetState = this[targetStateName];
-            targetState.AddStateCallback(method, false);
+            State<TState> targetState = this[targetStateName];
+            targetState.AddStateCallback(callback, false);
         }
 
-        public void AddTransitionCallback(TState source, TState target, Action<TState, TState> method)
+        public void AddArcCallback(TState source, TState target, Func<TState, TState, Task> callback)
         {
-            StateContainer<TState> state = this[source];
-            state.AddTransitionCallback(target, method);
+            State<TState> state = this[source];
+            state.AddArcCallback(target, callback);
         }
 
-        public void GoToState(TState stateName)
+        public async Task GoToStateAsync(TState targetState)
         {
             try
             {
                 if (IsTransiting)
                 {
-                    throw new StateMachineException<TState>(ErrorCodes.AlreadyTransiting, stateName);
+                    throw new StateMachineException<TState>(ErrorCodes.AlreadyTransiting, targetState);
                 }
 
                 IsTransiting = true;
-                OnTransiting(new TransitingEventArgs<TState>(stateName));
-                StateContainer<TState> target = this[stateName];
+                OnTransiting(new TransitingEventArgs<TState>(targetState));
 
-                if (CurrentState != null)
-                {
-                    Transition<TState> transition = CurrentState[target];
+                State<TState> currentStateWrapper = this[CurrentState];
+                Arc<TState> arc = currentStateWrapper[targetState];
+                await currentStateWrapper.InvokeExitCallbacksAsync().ConfigureAwait(false);
+                await arc.InvokeAllCallbacksAsync().ConfigureAwait(false);
 
-                    CurrentState.CallExitCallbacks();
-                    transition.CallTransitionCallbacks();
-                }
+                CurrentState = targetState;
 
-                CurrentState = target;
-                target.CallEnterCallbacks();
-                IsTransiting = false;
-                OnTransited(new TransitedEventArgs<TState>(CurrentState.State));
+                State<TState> targetStateWrapper = this[targetState];
+                await targetStateWrapper.InvokeEnterCallbacksAsync().ConfigureAwait(false);
+
+                OnTransited(new TransitedEventArgs<TState>(CurrentState));
             }
-            catch
+            finally
             {
                 IsTransiting = false;
-                throw;
             }
         }
     }
